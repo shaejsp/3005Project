@@ -1,0 +1,8 @@
+drop table book_ordered;
+drop table purchase;
+drop table book;
+drop table author;
+drop table genre;
+drop table publisher;
+drop table customer;
+drop table address;
