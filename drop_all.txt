@@ -1,3 +1,5 @@
+drop table book_genre;
+drop table writes;
 drop table book_ordered;
 drop table purchase;
 drop table book;

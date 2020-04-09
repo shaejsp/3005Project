@@ -45,9 +45,7 @@ create table address
 create table book
   (b_title			varchar(50),
    ISBN				varchar(17),
-   a_id				numeric(6,0),
    p_id				numeric(6, 0),
-   g_id				numeric(6,0),
    num_pages			numeric(4,0),
    price			numeric(4,2),
    quantity			numeric(4,0),
@@ -55,7 +53,6 @@ create table book
    year				numeric(4,0),
    summary			varchar(1000),
    primary key (ISBN),
-   foreign key (a_id) references author,
    foreign key (p_id) references publisher,
    foreign key (g_id) references genre
   );
@@ -74,5 +71,21 @@ create table book_ordered
    quantity			numeric(4,0),
    primary key (o_id, ISBN),
    foreign key (o_id) references purchase,
+   foreign key (ISBN) references book
+  );
+
+create table book_genre
+  (ISBN				varchar(17),
+   g_id				numeric(6, 0),
+   primary key (g_id, ISBN),
+   foreign key (g_id) references genre,
+   foreign key (ISBN) references book
+  );
+
+create table writes
+  (ISBN				varchar(17),
+   a_id				numeric(6, 0),
+   primary key (a_id, ISBN),
+   foreign key (a_id) references author,
    foreign key (ISBN) references book
   );
