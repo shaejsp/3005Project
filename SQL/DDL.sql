@@ -53,8 +53,7 @@ create table book
    year				numeric(4,0),
    summary			varchar(1000),
    primary key (ISBN),
-   foreign key (p_id) references publisher,
-   foreign key (g_id) references genre
+   foreign key (p_id) references publisher
   );
 
 create table purchase
@@ -77,7 +76,7 @@ create table book_ordered
 create table book_genre
   (ISBN				varchar(17),
    g_id				numeric(6, 0),
-   primary key (g_id, ISBN),
+   primary key (ISBN, g_id),
    foreign key (g_id) references genre,
    foreign key (ISBN) references book
   );
