@@ -14,7 +14,7 @@ create table book
 create table author
   (auth_id				INT GENERATED ALWAYS AS IDENTITY,
    auth_name			varchar(50),
-   UNIQUE(auth_name)
+   UNIQUE(auth_name),
    primary key (auth_id)
   );
 
@@ -28,7 +28,7 @@ create table writes
 
 create table genre
   (g_id				INT GENERATED ALWAYS AS IDENTITY,
-   g_name			varchar(15),
+   g_name			varchar(25),
    primary key (g_id)
   );
 
@@ -100,13 +100,13 @@ create table book_in_cart
  );
 
 create table publisher
-  (pub_id   INT GENERATED ALWAYS AS IDENTITY,
-   pub_name varchar(50),
-   email    varchar(320),
-   phone    varchar(12),
-   addr_id  INT,
-   primary key (pub_id),
-   foreign key (addr_id) references address
+  (pub_id     INT GENERATED ALWAYS AS IDENTITY,
+   pub_name   varchar(50),
+   email      varchar(320),
+   phone      varchar(12),
+   bank_acct  numeric(12, 0),
+   UNIQUE (pub_name),
+   primary key (pub_id)
  );
 
 create table book_purchased
