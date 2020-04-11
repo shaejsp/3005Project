@@ -12,27 +12,28 @@ create table book
   );
 
 create table author
-  (auth_id				numeric(6, 0),
+  (auth_id				INT GENERATED ALWAYS AS IDENTITY,
    auth_name			varchar(50),
+   UNIQUE(auth_name)
    primary key (auth_id)
   );
 
 create table writes
   (ISBN           varchar(13),
-   auth_id				numeric(6, 0),
+   auth_id				INT,
    primary key (auth_id, ISBN),
    foreign key (auth_id) references author,
    foreign key (ISBN) references book
   );
 
 create table genre
-  (g_id				numeric(6, 0),
+  (g_id				INT GENERATED ALWAYS AS IDENTITY,
    g_name			varchar(15),
    primary key (g_id)
   );
 
 create table book_genre
-  (genre_id     numeric(6,0),
+  (genre_id     INT,
    ISBN         varchar(13),
    primary key (genre_id, ISBN),
    foreign key (genre_id) references genre,
@@ -47,7 +48,7 @@ create table postal_area
 );
 
 create table address
-(addr_id			numeric(6, 0),
+(addr_id			INT GENERATED ALWAYS AS IDENTITY,
  city				varchar(20),
  postal_code			varchar(6),
  street_name			varchar(20),
@@ -57,33 +58,33 @@ create table address
 );
 
 create table customer
- (cust_id				numeric(6, 0),
+ (cust_id				INT GENERATED ALWAYS AS IDENTITY,
   username			varchar(20),
   password		  varchar(20),
   primary key (cust_id)
  );
 
 create table customer_billing
-  (cust_id    numeric(6,0),
-   addr_id    numeric(6,0),
+  (cust_id    INT,
+   addr_id    INT,
    primary key (cust_id),
    foreign key (cust_id) references customer,
    foreign key (addr_id) references address
  );
 
  create table customer_shipping
-   (cust_id    numeric(6,0),
-    addr_id    numeric(6,0),
+   (cust_id    INT,
+    addr_id    INT,
     primary key (cust_id),
     foreign key (cust_id) references customer,
     foreign key (addr_id) references address
   );
 
 create table purchase
- (order_id				numeric(6,0),
+ (order_id				INT GENERATED ALWAYS AS IDENTITY,
   tracking_num		varchar(20),
-  cust_id	  			numeric(6,0),
-  addr_id         numeric(6,0),
+  cust_id	  			INT,
+  addr_id         INT,
   primary key (order_id),
   foreign key (cust_id) references customer,
   foreign key (addr_id) references address
@@ -91,7 +92,7 @@ create table purchase
 
 create table book_in_cart
   (ISBN     varchar(13),
-   cart_id  numeric(6,0),
+   cart_id  INT GENERATED ALWAYS AS IDENTITY,
    quantity numeric(3,0),
    primary key (ISBN, cart_id),
    foreign key (ISBN) references book,
@@ -99,17 +100,17 @@ create table book_in_cart
  );
 
 create table publisher
-  (pub_id   numeric(6,0),
+  (pub_id   INT GENERATED ALWAYS AS IDENTITY,
    pub_name varchar(50),
    email    varchar(320),
    phone    varchar(12),
-   addr_id  numeric(6,0),
+   addr_id  INT,
    primary key (pub_id),
    foreign key (addr_id) references address
  );
 
 create table book_purchased
-  (order_id			numeric(6,0),
+  (order_id			INT,
    ISBN				 varchar(13),
    quantity			numeric(4,0),
    primary key (order_id, ISBN),
@@ -118,7 +119,7 @@ create table book_purchased
   );
 
 create table published
-  (pub_id   numeric(6,0),
+  (pub_id   INT,
    ISBN     varchar(13),
    primary key (pub_id, ISBN),
    foreign key (pub_id) references publisher,
