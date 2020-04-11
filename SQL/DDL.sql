@@ -1,7 +1,28 @@
+
+create table book
+  (title			   varchar(50),
+   ISBN				   varchar(13),
+   num_pages		 numeric(4,0),
+   price			   numeric(4,2),
+   quantity			 numeric(4,0),
+   pub_percent	 numeric(2,2),
+   year				   numeric(4,0),
+   summary			 varchar(1000),
+   primary key (ISBN)
+  );
+
 create table author
-  (a_id				numeric(6, 0),
-   a_name			varchar(50),
-   primary key (a_id)
+  (auth_id				numeric(6, 0),
+   auth_name			varchar(50),
+   primary key (auth_id)
+  );
+
+create table writes
+  (ISBN           varchar(13),
+   auth_id				numeric(6, 0),
+   primary key (auth_id, ISBN),
+   foreign key (auth_id) references author,
+   foreign key (ISBN) references book
   );
 
 create table genre
@@ -10,81 +31,96 @@ create table genre
    primary key (g_id)
   );
 
-create table publisher
-  (p_id				numeric(6, 0),
-   p_name			varchar(50),
-   addr_id			numeric(6, 0),
-   p_email			varchar(320),
-   p_phone			varchar(12),
-   p_bank_acct			numeric(12),
-   p_bank_routing		numeric(9),
-   primary key (p_id)
-  );
+create table book_genre
+  (genre_id     numeric(6,0),
+   ISBN         varchar(13),
+   primary key (genre_id, ISBN),
+   foreign key (genre_id) references genre,
+   foreign key (ISBN) references book
+ );
 
-create table customer
-  (c_id				numeric(6, 0),
-   username			varchar(20),
-   pass				varchar(20),
-   bill_id			numeric(6, 0),
-   ship_id			numeric(6,0),
-   primary key (c_id)
-  );
+create table postal_area
+ (postal_code  varchar(6),
+  province     varchar(20),
+  country      varchar(20),
+  primary key (postal_code)
+);
 
 create table address
-  (addr_id			numeric(6, 0),
-   country			varchar(20),
-   province			varchar(20),
-   city				varchar(20),
-   postal_code			varchar(6),
-   street_name			varchar(20),
-   street_num			varchar(5),
-   primary key (addr_id, street_num, street_name, city, postal_code)
-  );
+(addr_id			numeric(6, 0),
+ city				varchar(20),
+ postal_code			varchar(6),
+ street_name			varchar(20),
+ street_num			varchar(5),
+ primary key (addr_id),
+ foreign key (postal_code) references postal_area
+);
 
+create table customer
+ (cust_id				numeric(6, 0),
+  username			varchar(20),
+  password		  varchar(20),
+  primary key (cust_id)
+ );
 
-create table book
-  (b_title			varchar(50),
-   ISBN				varchar(17),
-   p_id				numeric(6, 0),
-   num_pages			numeric(4,0),
-   price			numeric(4,2),
-   quantity			numeric(4,0),
-   pub_percent			numeric(2,2),
-   year				numeric(4,0),
-   summary			varchar(1000),
-   primary key (ISBN),
-   foreign key (p_id) references publisher
+create table customer_billing
+  (cust_id    numeric(6,0),
+   addr_id    numeric(6,0),
+   primary key (cust_id),
+   foreign key (cust_id) references customer,
+   foreign key (addr_id) references address
+ );
+
+ create table customer_shipping
+   (cust_id    numeric(6,0),
+    addr_id    numeric(6,0),
+    primary key (cust_id),
+    foreign key (cust_id) references customer,
+    foreign key (addr_id) references address
   );
 
 create table purchase
-  (o_id				numeric(6,0),
-   tracking_num			varchar(20),
-   c_id				numeric(6,0),
-   primary key (o_id),
-   foreign key (c_id) references customer
-  );
+ (order_id				numeric(6,0),
+  tracking_num		varchar(20),
+  cust_id	  			numeric(6,0),
+  addr_id         numeric(6,0),
+  primary key (order_id),
+  foreign key (cust_id) references customer,
+  foreign key (addr_id) references address
+ );
 
-create table book_ordered
-  (o_id				numeric(6,0),
-   ISBN				varchar(17),
+create table book_in_cart
+  (ISBN     varchar(13),
+   cart_id  numeric(6,0),
+   quantity numeric(3,0),
+   primary key (ISBN, cart_id),
+   foreign key (ISBN) references book,
+   foreign key (cart_id) references customer
+ );
+
+create table publisher
+  (pub_id   numeric(6,0),
+   pub_name varchar(50),
+   email    varchar(320),
+   phone    varchar(12),
+   addr_id  numeric(6,0),
+   primary key (pub_id),
+   foreign key (addr_id) references address
+ );
+
+create table book_purchased
+  (order_id			numeric(6,0),
+   ISBN				 varchar(13),
    quantity			numeric(4,0),
-   primary key (o_id, ISBN),
-   foreign key (o_id) references purchase,
+   primary key (order_id, ISBN),
+   foreign key (order_id) references purchase,
    foreign key (ISBN) references book
   );
 
-create table book_genre
-  (ISBN				varchar(17),
-   g_id				numeric(6, 0),
-   primary key (ISBN, g_id),
-   foreign key (g_id) references genre,
+create table published
+  (pub_id   numeric(6,0),
+   ISBN     varchar(13),
+   primary key (pub_id, ISBN),
+   foreign key (pub_id) references publisher,
    foreign key (ISBN) references book
-  );
-
-create table writes
-  (ISBN				varchar(17),
-   a_id				numeric(6, 0),
-   primary key (a_id, ISBN),
-   foreign key (a_id) references author,
-   foreign key (ISBN) references book
-  );
+ );
