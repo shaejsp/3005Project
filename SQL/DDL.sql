@@ -29,6 +29,7 @@ create table writes
 create table genre
   (g_id				INT GENERATED ALWAYS AS IDENTITY,
    g_name			varchar(25),
+   UNIQUE(g_name),
    primary key (g_id)
   );
 
@@ -61,6 +62,8 @@ create table customer
  (cust_id				INT GENERATED ALWAYS AS IDENTITY,
   username			varchar(20),
   password		  varchar(20),
+  cart_id       INT GENERATED ALWAYS AS IDENTITY,
+  UNIQUE (username),
   primary key (cust_id)
  );
 
@@ -92,7 +95,7 @@ create table purchase
 
 create table book_in_cart
   (ISBN     varchar(13),
-   cart_id  INT GENERATED ALWAYS AS IDENTITY,
+   cart_id  INT,
    quantity numeric(3,0),
    primary key (ISBN, cart_id),
    foreign key (ISBN) references book,
