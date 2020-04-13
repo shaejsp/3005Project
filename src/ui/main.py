@@ -14,14 +14,14 @@ class StartMenu:
 
     def display(self):
         """ Display the menu and get the user's choice. """
-            choice = input("\nPlease enter your choice:"
-                           "\n\t1. Log in "
-                           "\n\t2. Sign Up "
-                           "\n\t3. Quit\n")
-            try:
-                self.choice = int(choice)
-            except:
-                StartMenu()
+        choice = input("\nPlease enter your choice:"
+                       "\n\t1. Log in "
+                       "\n\t2. Sign Up "
+                       "\n\t3. Quit\n")
+        try:
+            self.choice = int(choice)
+        except:
+            StartMenu()
 
     def navigate(self):
         """ Navigate to the next page based on the user's choice. """
@@ -390,10 +390,11 @@ class CartView:
         choice = input("Please enter your choice: "
                        "\n\t1. Remove a book from your cart"
                        "\n\t2. Change the quantity of a book"
-                       "\n\t3. Check out"
-                       "\n\t4. Back to home"
-                       "\n\t5. Log out"
-                       "\n\t6. Quit\n")
+                       "\n\t3. Empty your cart"
+                       "\n\t4. Check out"
+                       "\n\t5. Back to home"
+                       "\n\t6. Log out"
+                       "\n\t7. Quit\n")
         try:
             self.choice = int(choice)
         except:
@@ -407,12 +408,15 @@ class CartView:
         elif self.choice == 2:
             self.changeQuantity()
         elif self.choice == 3:
-            CheckOut()
-        elif self.choice == 4:
+            db.clearCart(username)
             HomeMenu()
+        elif self.choice == 4:
+            CheckOut()
         elif self.choice == 5:
-            LogIn()
+            HomeMenu()
         elif self.choice == 6:
+            LogIn()
+        elif self.choice == 7:
             exit(0)
         else:
             print("\nPlease enter a valid choice.")
