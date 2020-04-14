@@ -1,5 +1,9 @@
 # 3005Project
 
+## About
+
+This project mimicks an online book store.
+
 ## To set up the database:
 
 1. Create a new database in postgres.
