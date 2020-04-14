@@ -111,9 +111,9 @@ class EnterBillingAddr():
     def addToDatabase(self):
         """ Add a new billing address to the database and associate it with the user. """
         if db.addPostalArea(self.postalCode, self.province, self.country):
-            db.addAddress(self.streetNum, self.streetName, self.city, self.postalCode)
-            addr_id = db.getAddressId(self.streetNum, self.streetName, self.city, self.country)
-            db.addBilling(username, addr_id[0][0])
+            if db.addAddress(self.streetNum, self.streetName, self.city, self.postalCode):
+                addr_id = db.getAddressId(self.streetNum, self.streetName, self.city, self.postalCode)
+                db.addBilling(username, addr_id[0][0])
 
 
 class EnterShippingAddr():
@@ -140,9 +140,9 @@ class EnterShippingAddr():
             db.addBillingAsShipping(username)
         else:
             if db.addPostalArea(self.postalCode, self.province, self.country):
-                db.addAddress(self.streetNum, self.streetName, self.city, self.postalCode)
-                addr_id = db.getAddressId(self.streetNum, self.streetName, self.city, self.country)
-                db.addBilling(username, addr_id[0][0])
+                if db.addAddress(self.streetNum, self.streetName, self.city, self.postalCode):
+                    addr_id = db.getAddressId(self.streetNum, self.streetName, self.city, self.postalCode)
+                    db.addShipping(username, addr_id[0][0])
 
 
 class HomeMenu:
@@ -361,31 +361,11 @@ class AddToCart:
 
 class CartView:
     def __init__(self):
-        self.displayCart()
-        self.displayMenu()
+        displayCart()
+        self.display()
         self.navigate()
 
-    def displayCart(self):
-        """ Print the books in a user's cart. """
-        self.books = db.getBooksInCart(username)
-
-        print("\n--- Your Cart ---")
-        print("    {:55s} {:50s} {:<7} {}".format("Title", "Author(s)", "Price", "Quantity"))
-
-        for i in range(len(self.books)):
-            isbn = self.books[i][0]
-            quantity = self.books[i][2]
-            authors = db.getAuthorOf(isbn)
-            authStr = ""
-            for a in authors:
-                authStr += a[0] + ", "
-            authStr = authStr[:-2]
-
-            book = db.searchByISBN(isbn)[0]
-            print("{:2}. {:55s} {:50s} ${:<6} {}".format(i+1, book[0], authStr, book[3], quantity))
-        print()
-
-    def displayMenu(self):
+    def display(self):
         """ Display the menu and get the user's choice. """
         choice = input("Please enter your choice: "
                        "\n\t1. Remove a book from your cart"
@@ -434,6 +414,71 @@ class CartView:
         bookIndex = int(bookIndex) - 1
         quantity = int(input("How many would you like to buy? "))
         db.updateCartQuantity(username, self.books[bookIndex][0], quantity)
+
+
+class CheckOut:
+    def __init__(self):
+        self.display()
+
+    def display(self):
+        print("--- Check Out ---")
+        # print billing info
+        addr_id = db.getBillingAddr(username)
+        displayAddress(addr_id[0][0])
+        billing = input("Is this your billing address? (y/n) ")
+        if billing == 'n' or billing == 'N':
+            EnterBillingAddr()
+        # check billing info
+        # enter billing info if needed
+
+        # print shipping info
+        print()
+        addr_id = db.getShippingAddr(username)
+        displayAddress(addr_id[0][0])
+        shipping = input("Is this your shipping address? (y/n) ")
+        if shipping == 'n' or shipping == 'N':
+            EnterShippingAddr()
+        # check shipping info
+        # enter shipping info if needed
+
+        # display cart
+        # confirm
+
+def displayAddress(addr_id):
+    """ display an address on the screen. """
+    addr = db.getAddress(addr_id)
+    # [(14, 'Ottawa', 'K1S6E5', 'Ridgemont Avenue', '1270')]
+    city = addr[0][1]
+    postal = addr[0][2]
+    streetName = addr[0][3]
+    streetNum = addr[0][4]
+
+    pc = db.getProvCountry(postal)
+    province = pc[0][1]
+    country = pc[0][2]
+
+    print(streetNum + " " + streetName + " " + city + ", " + province + ", " + country + " " + postal)
+
+
+def displayCart():
+    """ Print the books in a user's cart. """
+    books = db.getBooksInCart(username)
+
+    print("\n--- Your Cart ---")
+    print("    {:55s} {:50s} {:<7} {}".format("Title", "Author(s)", "Price", "Quantity"))
+
+    for i in range(len(books)):
+        isbn = books[i][0]
+        quantity = books[i][2]
+        authors = db.getAuthorOf(isbn)
+        authStr = ""
+        for a in authors:
+            authStr += a[0] + ", "
+        authStr = authStr[:-2]
+
+        book = db.searchByISBN(isbn)[0]
+        print("{:2}. {:55s} {:50s} ${:<6} {}".format(i+1, book[0], authStr, book[3], quantity))
+    print()
 
 
 def main():

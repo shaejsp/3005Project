@@ -190,6 +190,7 @@ class DatabaseConnection:
             self.curs.execute("insert into address (street_num, street_name, city, postal_code)"
                               "values('{snu}', '{sna}', '{c}', '{p}');".format(snu=street_num, sna=street_name, c=city, p=postal))
             self.conn.commit()
+            return True
         except Exception as e:
             print(e)
 
@@ -227,6 +228,29 @@ class DatabaseConnection:
         try:
             self.curs.execute("insert into customer_billing (cust_id, addr_id) "
             "values ("
+            	"(select cust_id from customer "
+            	"where username = '{u}'), {a});".format(u=username, a=addr_id))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(e)
+
+    def addShipping(self, username, addr_id):
+        """
+        Add or update a shipping address to a user.
+
+        :param username: the username
+        :param addr_id: the address id
+        """
+        try:
+            # see if in db
+
+            # if in db, update
+
+            # else insert
+            
+            self.curs.execute("insert into customer_shipping (cust_id, addr_id) "
+                "values ("
             	"(select cust_id from customer "
             	"where username = '{u}'), {a});".format(u=username, a=addr_id))
             self.conn.commit()
@@ -298,5 +322,41 @@ class DatabaseConnection:
                               "where username = '{u}') "
                               "and isbn = '9780439358071';".format(q=quantity, u=username, i=isbn))
             self.conn.commit()
+        except Exception as e:
+            print(e)
+
+    def getBillingAddr(self, username):
+        try:
+            self.curs.execute("select addr_id from customer_billing "
+	                          "where cust_id = "
+	 	                      "(select cust_id from customer "
+		                      "where username = '{u}');".format(u=username))
+            return self.curs.fetchall()
+        except Exception as e:
+            print(e)
+
+    def getShippingAddr(self, username):
+        try:
+            self.curs.execute("select addr_id from customer_shipping "
+	                          "where cust_id = "
+	 	                      "(select cust_id from customer "
+		                      "where username = '{u}');".format(u=username))
+            return self.curs.fetchall()
+        except Exception as e:
+            print(e)
+
+    def getAddress(self, addr_id):
+        try:
+            self.curs.execute("select * from address "
+	                          "where addr_id = {a};".format(a=addr_id))
+            return self.curs.fetchall()
+        except Exception as e:
+            print(e)
+
+    def getProvCountry(self, postal):
+        try:
+            self.curs.execute("select * from postal_area "
+	                          "where postal_code = '{p}';".format(p=postal))
+            return self.curs.fetchall()
         except Exception as e:
             print(e)
