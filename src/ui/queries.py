@@ -142,8 +142,22 @@ class DatabaseConnection:
             	              "select cart_id from customer "
             	              "where username = '{u}'));".format(i=isbn, q=quantity, u=user))
             self.conn.commit()
+            return True
+        except psycopg2.errors.UniqueViolation:  # already in db
+            self.conn.commit()
+            self.curs.execute("update book_in_cart "
+                              "set quantity = quantity + {q} "
+                              "where cart_id = "
+                              "(select cart_id from customer "
+                              "where username = '{u}') "
+                              "and isbn = '{i}';".format(i=isbn, q=quantity, u=user))
+            self.conn.commit()
+            return True
         except Exception as e:
             print(e)
+            return False
+
+
 
     def clearCart(self, user):
         """
@@ -172,6 +186,8 @@ class DatabaseConnection:
                               "values('{z}', '{p}', '{c}');".format(z=postal, p=province, c=country))
             self.conn.commit()
             return True
+        except psycopg2.errors.UniqueViolation:  # already in db
+            return True
         except Exception as e:
             print(e)
 
@@ -190,6 +206,8 @@ class DatabaseConnection:
             self.curs.execute("insert into address (street_num, street_name, city, postal_code)"
                               "values('{snu}', '{sna}', '{c}', '{p}');".format(snu=street_num, sna=street_name, c=city, p=postal))
             self.conn.commit()
+            return True
+        except psycopg2.errors.UniqueViolation:  # already in db
             return True
         except Exception as e:
             print(e)
@@ -227,9 +245,16 @@ class DatabaseConnection:
         """
         try:
             self.curs.execute("insert into customer_billing (cust_id, addr_id) "
-            "values ("
+                "values ("
             	"(select cust_id from customer "
             	"where username = '{u}'), {a});".format(u=username, a=addr_id))
+            self.conn.commit()
+            return True
+        except psycopg2.errors.UniqueViolation:  # already in db
+            self.curs.execute("update customer_billing "
+                              "set addr_id = {a} where cust_id = "
+                              "(select cust_id from customer "
+                              "where username = '{u}');".format(a=addr_id, u=username))
             self.conn.commit()
             return True
         except Exception as e:
@@ -244,15 +269,20 @@ class DatabaseConnection:
         """
         try:
             # see if in db
-
-            # if in db, update
-
-            # else insert
-            
-            self.curs.execute("insert into customer_shipping (cust_id, addr_id) "
-                "values ("
-            	"(select cust_id from customer "
-            	"where username = '{u}'), {a});".format(u=username, a=addr_id))
+            self.curs.execute("select * from customer_shipping "
+                              "where cust_id = "
+                              "(select cust_id from customer "
+                              "where username = '{u}');".format(u=username))
+            if len(self.curs.fetchall()) > 0:  # user is in the db - we update
+                self.curs.execute("update customer_shipping "
+                                   "set addr_id = {a} where cust_id = "
+                                   "(select cust_id from customer "
+                                   "where username = '{u}');".format(a=addr_id, u=username))
+            else:
+                self.curs.execute("insert into customer_shipping (cust_id, addr_id) "
+                    "values ("
+                	"(select cust_id from customer "
+                	"where username = '{u}'), {a});".format(u=username, a=addr_id))
             self.conn.commit()
             return True
         except Exception as e:
@@ -290,6 +320,7 @@ class DatabaseConnection:
             return self.curs.fetchall()
         except Exception as e:
             print(e)
+
 
     def deleteBookFromCart(self, username, isbn):
         """
@@ -360,3 +391,29 @@ class DatabaseConnection:
             return self.curs.fetchall()
         except Exception as e:
             print(e)
+
+    def purchaseCart(self, username, shippingAddr, isbns):
+        # make new purchase
+        # try:
+        self.curs.execute("insert into purchase (cust_id, addr_id) "
+                          "values((select cust_id from customer "
+                          "where username = '{u}'),"
+                          "{a})".format(u=username, a=shippingAddr))
+        self.conn.commit()
+        # add all of the books in books_in_cart to book_purchased
+
+        for isbn in isbns:
+            self.curs.execute("insert into book_purchased (ISBN, quantity, order_id) "
+                              "values ('{i}', "
+		                      "(select quantity from book_in_cart "
+		 	                  "where book_in_cart.cart_id = "
+		 	                  "(select cust_id from customer where username = '{u}') "
+		 	                  "and isbn = '{i}'), "
+		                      "(select order_id from purchase "
+		 	                  "where cust_id = (select cust_id from customer where username = '{u}')));".format(i=isbn, u=username))
+            self.conn.commit()
+        self.clearCart(username)
+        # except Exception as e:
+        #     print(e)
+
+        # clear cart

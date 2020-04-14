@@ -418,31 +418,89 @@ class CartView:
 
 class CheckOut:
     def __init__(self):
-        self.display()
+        self.cartCheck()
+        self.cartNavigate()
+        self.billingAddrCheck()
+        self.shippingAddrCheck()
+        self.creditInfo()
+        self.finalNavigate()
 
-    def display(self):
+    def cartCheck(self):
         print("--- Check Out ---")
+        # display cart
+        books = displayCart()
+
+        total = 0
+        self.isbns = []
+        for b in books:
+            fullBook = db.searchByISBN(b[0])
+            self.isbns.append(b[0])
+            total += float(b[2])*float(fullBook[0][3])
+
+        print("Your total is: ${t}\n".format(t=total))
+
+        self.cartChoice = int(input("Please enter your choice:"
+                                    "\n\t1. Back to home"
+                                    "\n\t2. Proceed to check out"
+                                    "\n\t3. Log out"
+                                    "\n\t4. Quit\n"))
+    def cartNavigate(self):
+        if self.cartChoice == 1:
+            HomeMenu()
+        elif self.cartChoice == 2:
+            return
+        elif self.cartChoice == 3:
+            StartMenu()
+        elif self.cartChoice == 4:
+            exit(0)
+        else:
+            CheckOut()
+
+    def billingAddrCheck(self):
+        print()
         # print billing info
         addr_id = db.getBillingAddr(username)
         displayAddress(addr_id[0][0])
         billing = input("Is this your billing address? (y/n) ")
+
+        # if needed, update the billing info
         if billing == 'n' or billing == 'N':
             EnterBillingAddr()
-        # check billing info
-        # enter billing info if needed
 
-        # print shipping info
+    def shippingAddrCheck(self):
         print()
+        # print shipping info
         addr_id = db.getShippingAddr(username)
+        self.shipping = addr_id[0][0]
         displayAddress(addr_id[0][0])
         shipping = input("Is this your shipping address? (y/n) ")
+
+        # if needed, update the shipping info
         if shipping == 'n' or shipping == 'N':
             EnterShippingAddr()
-        # check shipping info
-        # enter shipping info if needed
 
-        # display cart
+    def creditInfo(self):
+        # get credit card info
+        self.creditNum = input("\nCredit card number: ")
+
         # confirm
+        self.finalCheck = int(input("\nPlease enter your choice:"
+                                    "\n\t1. Back to home"
+                                    "\n\t2. Confirm\n"))
+
+    def finalNavigate(self):
+        if self.finalCheck == 1:
+            HomeMenu()
+        elif self.finalCheck == 2:
+            db.purchaseCart(username, self.shipping, self.isbns)
+            ThanksScreen()
+
+
+class ThanksScreen:
+    def __init__(self):
+        input("Thank you for your purchase! Hit enter to go back to home.")
+        HomeMenu()
+
 
 def displayAddress(addr_id):
     """ display an address on the screen. """
@@ -479,6 +537,7 @@ def displayCart():
         book = db.searchByISBN(isbn)[0]
         print("{:2}. {:55s} {:50s} ${:<6} {}".format(i+1, book[0], authStr, book[3], quantity))
     print()
+    return books
 
 
 def main():
