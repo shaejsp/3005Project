@@ -7,7 +7,7 @@ class DatabaseConnection:
         sets up the connection to the DatabaseConnection
         """
         self.conn = psycopg2.connect(host="localhost", database="project",
-                                user="postgres", password="lucky")
+                                    user="postgres", password="lucky")
         self.curs = self.conn.cursor()
 
     def logIn(self, user, p):

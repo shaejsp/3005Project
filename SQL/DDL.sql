@@ -85,7 +85,7 @@ create table customer_billing
 
 create table purchase
  (order_id				INT GENERATED ALWAYS AS IDENTITY,
-  tracking_num		varchar(20),
+  tracking_num		INT GENERATED ALWAYS AS IDENTITY,
   cust_id	  			INT,
   addr_id         INT,
   primary key (order_id),
