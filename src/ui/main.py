@@ -426,6 +426,7 @@ class CheckOut:
         self.finalNavigate()
 
     def cartCheck(self):
+        """ Displays the user's cart and allows them to back out. """
         print("--- Check Out ---")
         # display cart
         books = displayCart()
@@ -445,6 +446,7 @@ class CheckOut:
                                     "\n\t3. Log out"
                                     "\n\t4. Quit\n"))
     def cartNavigate(self):
+        """ Navigate to the next page based on the user's choice after cart display. """
         if self.cartChoice == 1:
             HomeMenu()
         elif self.cartChoice == 2:
@@ -457,6 +459,7 @@ class CheckOut:
             CheckOut()
 
     def billingAddrCheck(self):
+        """ Checks billing address. """
         print()
         # print billing info
         addr_id = db.getBillingAddr(username)
@@ -468,6 +471,7 @@ class CheckOut:
             EnterBillingAddr()
 
     def shippingAddrCheck(self):
+        """ Checks shipping address. """
         print()
         # print shipping info
         addr_id = db.getShippingAddr(username)
@@ -480,6 +484,7 @@ class CheckOut:
             EnterShippingAddr()
 
     def creditInfo(self):
+        """ Gets credit info. """
         # get credit card info
         self.creditNum = input("\nCredit card number: ")
 
@@ -489,6 +494,7 @@ class CheckOut:
                                     "\n\t2. Confirm\n"))
 
     def finalNavigate(self):
+        """ One final check to let the user back out. """
         if self.finalCheck == 1:
             HomeMenu()
         elif self.finalCheck == 2:
@@ -498,7 +504,7 @@ class CheckOut:
 
 class ThanksScreen:
     def __init__(self):
-        input("Thank you for your purchase! Hit enter to go back to home.")
+        input("Thank you for your purchase! Hit enter to go back to home.\n")
         HomeMenu()
 
 

@@ -357,6 +357,12 @@ class DatabaseConnection:
             print(e)
 
     def getBillingAddr(self, username):
+        """
+        Get the billing address for a user.
+
+        :param username: the username
+        :return: a list of tuples of address information
+        """
         try:
             self.curs.execute("select addr_id from customer_billing "
 	                          "where cust_id = "
@@ -367,6 +373,12 @@ class DatabaseConnection:
             print(e)
 
     def getShippingAddr(self, username):
+        """
+        Get the shipping address for a user.
+
+        :param username: the username
+        :return: a list of tuples of address information
+        """
         try:
             self.curs.execute("select addr_id from customer_shipping "
 	                          "where cust_id = "
@@ -377,6 +389,12 @@ class DatabaseConnection:
             print(e)
 
     def getAddress(self, addr_id):
+        """
+        Get address information.
+
+        :param addr_id: the id of the address
+        :return: a list of tuples of address information
+        """
         try:
             self.curs.execute("select * from address "
 	                          "where addr_id = {a};".format(a=addr_id))
@@ -385,6 +403,12 @@ class DatabaseConnection:
             print(e)
 
     def getProvCountry(self, postal):
+        """
+        Get the province and country from a postal code.
+
+        :param postal: the postal code
+        :return: a list of tuples of postal area information
+        """
         try:
             self.curs.execute("select * from postal_area "
 	                          "where postal_code = '{p}';".format(p=postal))
@@ -393,27 +417,32 @@ class DatabaseConnection:
             print(e)
 
     def purchaseCart(self, username, shippingAddr, isbns):
-        # make new purchase
-        # try:
-        self.curs.execute("insert into purchase (cust_id, addr_id) "
-                          "values((select cust_id from customer "
-                          "where username = '{u}'),"
-                          "{a})".format(u=username, a=shippingAddr))
-        self.conn.commit()
-        # add all of the books in books_in_cart to book_purchased
+        """
+        Create a purchase and transfer all of the books in book_in-cart to
+        book_purchased.
 
-        for isbn in isbns:
-            self.curs.execute("insert into book_purchased (ISBN, quantity, order_id) "
-                              "values ('{i}', "
-		                      "(select quantity from book_in_cart "
-		 	                  "where book_in_cart.cart_id = "
-		 	                  "(select cust_id from customer where username = '{u}') "
-		 	                  "and isbn = '{i}'), "
-		                      "(select order_id from purchase "
-		 	                  "where cust_id = (select cust_id from customer where username = '{u}')));".format(i=isbn, u=username))
+        :param username: the username
+        :param shippingAddr: the id of the shipping address
+        :param isbns: a list of isbns of books in the cart
+        """
+        try:
+            self.curs.execute("insert into purchase (cust_id, addr_id) "
+                              "values((select cust_id from customer "
+                              "where username = '{u}'),"
+                              "{a})".format(u=username, a=shippingAddr))
             self.conn.commit()
-        self.clearCart(username)
-        # except Exception as e:
-        #     print(e)
+            # add all of the books in books_in_cart to book_purchased
 
-        # clear cart
+            for isbn in isbns:
+                self.curs.execute("insert into book_purchased (ISBN, quantity, order_id) "
+                                  "values ('{i}', "
+    		                      "(select quantity from book_in_cart "
+    		 	                  "where book_in_cart.cart_id = "
+    		 	                  "(select cust_id from customer where username = '{u}') "
+    		 	                  "and isbn = '{i}'), "
+    		                      "(select order_id from purchase "
+    		 	                  "where cust_id = (select cust_id from customer where username = '{u}')));".format(i=isbn, u=username))
+                self.conn.commit()
+            self.clearCart(username)
+        except Exception as e:
+            print(e)
