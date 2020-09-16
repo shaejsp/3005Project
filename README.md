@@ -2,7 +2,7 @@
 
 ## About
 
-This project mimicks an online book store.
+This project mimicks an online book store using a database and a command-line interface for the users.
 
 ## To set up the database:
 
